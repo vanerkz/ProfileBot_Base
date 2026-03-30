@@ -1,5 +1,14 @@
 # ProfileBot_Base — Cartographer + Gazebo Mapping & Localization Guide
 
+## Requirements
+
+* **OS:** Ubuntu 20.04.6 LTS
+* **ROS Version:** Noetic
+* **Key Packages:**
+
+  * `cartographer_ros`
+  * `move_base`
+
 This guide explains how to:
 
 * Build the workspace with `catkin_make_isolated`
@@ -22,7 +31,7 @@ After **any change** (config, launch file, or code):
 catkin_ws_isolated --install
 ```
 
-> If you do **not** want to use `catkin_make_isolated`, you must split `cartographer_ros` into a separate workspace.
+> ⚠️ If you do **not** want to use `catkin_make_isolated`, you must split `cartographer_ros` and `cartographer` into a separate workspace.
 
 ---
 
@@ -36,7 +45,7 @@ roslaunch my_robot_gazebo spawn_robot.launch
 
 ### Expected Result
 
-Robot should appear in the Gazebo world.
+The robot should appear in the Gazebo world.
 
 ![Gazebo Robot](images/gazebo.png)
 
@@ -58,7 +67,7 @@ Example joint values (radians):
 
 ### Expected Result
 
-Robot arm moves to the configured pose.
+The robot arm moves to the configured pose.
 
 ![Arm Control](images/arm_move.gif)
 
@@ -87,7 +96,7 @@ roslaunch wheel_controllers backpack_2d.launch
 
 ## 5. Save Cartographer Map (`.pbstream`)
 
-After mapping finishes, save the map:
+After mapping, save the map:
 
 ```bash
 rosservice call /write_state "{filename: '$HOME/catkin_ws_base/src/maps/my_map.pbstream', include_unfinished_submaps: true}"
@@ -139,7 +148,7 @@ Manually set the robot’s initial pose:
 
 ![Initial Pose](images/init_pose.gif)
 
-Robot should now localize correctly.
+The robot should now localize correctly.
 
 ---
 
@@ -153,7 +162,10 @@ Start the navigation stack (RViz included):
 roslaunch wheel_controllers move_base.launch
 ```
 
-This launches `move_base` with global and local planners, and loads the costmaps. Ensure your robot is publishing odometry (`odom → base_link`) and sensor data (e.g., `/scan`).
+This launches `move_base` with global and local planners, and loads the costmaps. Ensure your robot is publishing:
+
+* Odometry (`odom → base_link`)
+* Sensor data (e.g., `/scan`)
 
 ### Send a Navigation Goal
 
@@ -179,4 +191,3 @@ cost_scaling_factor: 10.0    # How fast cost decreases away from obstacles
 
 ![Navigation](images/navi.gif)
 
----

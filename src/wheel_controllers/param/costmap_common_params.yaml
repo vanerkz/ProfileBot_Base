@@ -1,0 +1,9 @@
+obstacle_range: 5.0         # Max distance obstacles are marked
+raytrace_range: 8.0         # Max distance obstacles are cleared by raytracing
+
+footprint: [[-0.275,-0.15], [-0.275,0.15], [0.15,0.2], [0.15,-0.2]]  # Robot footprint
+inflation_radius: 1      # Obstacle inflation
+cost_scaling_factor: 10.0    # How fast cost decreases away from obstacles
+
+map_type: costmap            # Using standard occupancy grid costmap
+transform_tolerance: 0.3  # How far TF can lag before skipping updates

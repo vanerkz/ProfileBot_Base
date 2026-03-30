@@ -1,0 +1,51 @@
+<launch>
+  <!-- Use simulated time for all nodes -->
+  <param name="use_sim_time" value="true"/>
+
+  <!-- Robot description -->
+  <param name="robot_description" command="$(find xacro)/xacro $(find my_robot_gazebo)/urdf/my_robot.urdf.xacro"/>
+
+  <!-- Robot state publisher -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"/>
+
+  <!-- Launch Gazebo with your world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="world_name" value="$(find my_robot_gazebo)/worlds/small_office.world"/>
+  </include>
+
+  <!-- Spawn your robot -->
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
+        args="-param robot_description -urdf -model my_robot -x 0 -y 0 -z 0.0"
+        respawn="false"/>
+
+  <!-- Load controllers -->
+  <rosparam file="$(find my_robot_gazebo)/config/my_robot_controllers.yaml" command="load"/>
+  <node name="controller_spawner" pkg="controller_manager" type="spawner"
+        respawn="false"
+        output="screen"
+        args="
+joint_state_controller
+joint_0_position_controller
+joint_1_position_controller
+joint_2_position_controller
+joint_3_position_controller
+joint_4_position_controller
+joint_5_position_controller
+joint_6_position_controller
+joint_7_position_controller
+joint_8_position_controller
+joint_9_position_controller
+left_wheel_velocity_controller
+right_wheel_velocity_controller
+"/>
+
+  <!-- Wheel control and odometry -->
+  <node pkg="wheel_controllers" type="cmd_vel.py" name="cmd_vel_node" output="screen">
+    <param name="use_sim_time" value="true"/>
+  </node>
+  <node pkg="wheel_controllers" type="wheel_odom.py" name="wheel_odom" output="screen">
+    <param name="use_sim_time" value="true"/>
+  </node>
+</launch>

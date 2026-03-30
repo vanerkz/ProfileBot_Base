@@ -61,7 +61,7 @@ Example joint values:
 
 Robot arm moves to configured pose.
 
-![Arm Control](images/02_arm_control.png)
+![Arm Control](images/arm_move.gif)
 
 ---
 

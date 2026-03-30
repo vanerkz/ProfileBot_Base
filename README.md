@@ -1,18 +1,18 @@
-# ProfileBot_Base using Cartographer + Gazebo Mapping & Localization Guide
+# ProfileBot_Base — Cartographer + Gazebo Mapping & Localization Guide
 
 This guide explains how to:
 
-* Build workspace with `catkin_make_isolated`
-* Spawn robot in Gazebo
-* Control robot & arm
+* Build the workspace with `catkin_make_isolated`
+* Spawn the robot in Gazebo
+* Control the robot and arm
 * Create a map using Cartographer
-* Save `.pbstream`
-* Convert `.pbstream` to ROS map
+* Save `.pbstream` maps
+* Convert `.pbstream` to ROS maps
 * Run localization and navigation
 
 ---
 
-## 1. Build Workspace (catkin_make_isolated)
+## 1. Build Workspace (`catkin_make_isolated`)
 
 Since `cartographer_ros` uses **catkin_make_isolated**, the entire workspace must also use it.
 
@@ -47,10 +47,10 @@ Robot should appear in the Gazebo world.
 Run:
 
 ```bash
-rosrun wheel_controllers change_joint.py 
+rosrun wheel_controllers change_joint.py
 ```
 
-Example joint values:
+Example joint values (radians):
 
 ```
 0.0,0.0,1.7,0.0,-1.3,0.0,0.0,0.0,0.0,0.0
@@ -85,7 +85,7 @@ roslaunch wheel_controllers backpack_2d.launch
 
 ---
 
-## 5. Save Cartographer Map (.pbstream)
+## 5. Save Cartographer Map (`.pbstream`)
 
 After mapping finishes, save the map:
 
@@ -128,12 +128,14 @@ Launch localization:
 roslaunch wheel_controllers demo_backpack_2d_localization.launch
 ```
 
-### 8. Set Initial Pose in RViz
+---
 
-Manually set robot initial pose:
+## 8. Set Initial Pose in RViz
 
-1. Open RViz → **2D Pose Estimate**
-2. Click on the map to set pose
+Manually set the robot’s initial pose:
+
+1. In RViz, select **2D Pose Estimate**.
+2. Click on the map to set the robot’s initial pose.
 
 ![Initial Pose](images/init_pose.gif)
 
@@ -143,11 +145,22 @@ Robot should now localize correctly.
 
 ## 9. Navigation
 
-Launch move_base:
+### Launch Move Base
+
+Start the navigation stack (RViz included):
 
 ```bash
 roslaunch wheel_controllers move_base.launch
 ```
+
+This launches `move_base` with global and local planners, and loads the costmaps. Ensure your robot is publishing odometry (`odom → base_link`) and sensor data (e.g., `/scan`).
+
+### Send a Navigation Goal
+
+1. In RViz, click the **2D Nav Goal** button.
+2. Click on the map to set the goal position.
+3. Drag the arrow to adjust the robot’s orientation.
+4. The robot will automatically plan a path and move toward the goal.
 
 ### Navigation Tuning
 

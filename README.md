@@ -2,48 +2,47 @@
 
 This guide explains how to:
 
-* Build with `catkin_make_isolated`
+* Build workspace with `catkin_make_isolated`
 * Spawn robot in Gazebo
 * Control robot & arm
-* Create map using Cartographer
+* Create a map using Cartographer
 * Save `.pbstream`
-* Convert to ROS map
-* Run localization
+* Convert `.pbstream` to ROS map
+* Run localization and navigation
 
 ---
 
-# 1. Build Workspace (catkin_make_isolated)
+## 1. Build Workspace (catkin_make_isolated)
 
-Since `cartographer_ros` uses **catkin_make_isolated**, the entire workspace must use it.
+Since `cartographer_ros` uses **catkin_make_isolated**, the entire workspace must also use it.
 
-After **any change** (config, launch, code):
+After **any change** (config, launch file, or code):
 
 ```bash
 catkin_ws_isolated --install
 ```
 
-If you do NOT want to use `catkin_make_isolated`, you must:
-
-* Split `cartographer_ros` into a **separate workspace**
+> If you do **not** want to use `catkin_make_isolated`, you must split `cartographer_ros` into a separate workspace.
 
 ---
 
-# 2. Launch Gazebo Simulation
+## 2. Launch Gazebo Simulation
 
-Start Gazebo with robot:
+Start Gazebo with your robot:
 
 ```bash
 roslaunch my_robot_gazebo spawn_robot.launch
 ```
 
 ### Expected Result
-Robot should appear in Gazebo world.
+
+Robot should appear in the Gazebo world.
 
 ![Gazebo Robot](images/gazebo.png)
 
 ---
 
-# 3. Manually Control Robot Arm
+## 3. Manually Control Robot Arm
 
 Run:
 
@@ -59,73 +58,50 @@ Example joint values:
 
 ### Expected Result
 
-Robot arm moves to configured pose.
+Robot arm moves to the configured pose.
 
 ![Arm Control](images/arm_move.gif)
 
 ---
 
-# 4. Create Map using Cartographer
+## 4. Create Map using Cartographer
 
-### Start Teleop Control
+Start robot teleoperation and mapping:
 
 ```bash
+# Start teleoperation (keyboard control)
 rosrun wheel_controllers cmd_vel_remote.py
+
+# Launch robot and Cartographer for 2D mapping
+roslaunch wheel_controllers backpack_2d.launch
 ```
 
-Use this to **manually drive robot** for mapping.
+![Mapping](images/mapping.gif)
 
-![Teleop Movement](images/03_teleop.png)
+**Notes:**
+
+* Drive slowly and steadily for better map quality.
+* Cover all areas that need to be mapped.
 
 ---
 
-### Record Data
+## 5. Save Cartographer Map (.pbstream)
 
-At the same time:
-
-```bash
-rosbag record -a
-```
-
-This records all topics during mapping.
-
-![Rosbag Recording](images/04_rosbag.png)
-
----
-
-# 5. Save Cartographer Map (.pbstream)
-
-After mapping finishes:
+After mapping finishes, save the map:
 
 ```bash
 rosservice call /write_state "{filename: '$HOME/catkin_ws_base/src/maps/my_map.pbstream', include_unfinished_submaps: true}"
 ```
 
-This saves:
+This creates:
 
 ```
 my_map.pbstream
 ```
 
-![PBStream Saved](images/05_pbstream.png)
-
 ---
 
-# 6. Visualize Map
-
-Launch:
-
-```bash
-roslaunch cartograph_ros backpack_2d.launch
-```
-
-This loads and visualizes the map.
-
-![Cartographer Map](images/06_cartographer_map.png)
-
----
-
-# 7. Convert pbstream → ROS Map
+## 6. Convert `.pbstream` → ROS Map
 
 ```bash
 rosrun cartographer_ros cartographer_pbstream_to_ros_map \
@@ -140,11 +116,11 @@ my_map.pgm
 my_map.yaml
 ```
 
-![Map Output](images/07_map_output.png)
+Mapping is now complete.
 
 ---
 
-# 8. Run Localization
+## 7. Run Localization
 
 Launch localization:
 
@@ -152,51 +128,42 @@ Launch localization:
 roslaunch wheel_controllers demo_backpack_2d_localization.launch
 ```
 
-![Localization Launch](images/08_localization.png)
+### 8. Set Initial Pose in RViz
 
----
+Manually set robot initial pose:
 
-# 9. Set Initial Pose in RViz
+1. Open RViz → **2D Pose Estimate**
+2. Click on the map to set pose
 
-You MUST manually set robot initial pose:
-
-RViz → **2D Pose Estimate** → Click on map
-
-![Initial Pose](images/09_initial_pose.png)
+![Initial Pose](images/init_pose.gif)
 
 Robot should now localize correctly.
 
 ---
 
-# Workflow Summary
+## 9. Navigation
 
-1. Build workspace
-2. Launch Gazebo
-3. Control robot
-4. Drive to create map
-5. Save pbstream
-6. Convert to ROS map
-7. Launch localization
-8. Set initial pose
+Launch move_base:
 
----
-
-# Output Files
-
-```
-maps/
- ├── my_map.pbstream
- ├── my_map.pgm
- └── my_map.yaml
+```bash
+roslaunch wheel_controllers move_base.launch
 ```
 
----
+### Navigation Tuning
 
-# Notes
+To achieve better path planning, adjust parameters in:
 
-* Always rebuild using `catkin_make_isolated`
-* Must set **initial pose** in RViz
-* Use slow movement when mapping
-* Ensure `/scan` topic is publishing
+```
+~src/wheel_controllers/param/costmap_common_params.yaml
+```
+
+Example:
+
+```yaml
+inflation_radius: 1          # Obstacle inflation
+cost_scaling_factor: 10.0    # How fast cost decreases away from obstacles
+```
+
+![Navigation](images/navi.gif)
 
 ---

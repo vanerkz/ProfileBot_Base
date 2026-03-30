@@ -1,4 +1,4 @@
-# Cartographer + Gazebo Mapping & Localization Guide
+# ProfileBot_Base using Cartographer + Gazebo Mapping & Localization Guide
 
 This guide explains how to:
 
